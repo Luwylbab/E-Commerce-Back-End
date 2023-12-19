@@ -6,10 +6,10 @@ const { Category, Product } = require('../../models');
  // Finds all categories and includes its associated products
 router.get('/', async (req, res) => {
   try {
-    const productData = await Category.findAll({
+    const categoryData = await Category.findAll({
       include: [{ model: Product }],
     });
-    res.status(200).json(productData);
+    res.status(200).json(categoryData);
   } catch (err) {
     res.status(500).json(err);
   }
@@ -18,40 +18,71 @@ router.get('/', async (req, res) => {
   // Finds one category by its `id` value and includes its associated products
 router.get('/:id', async (req, res) => {
   try {
-    const productData = await Category.findByPk(req.params.id, {
+    const categoryData = await Category.findByPk(req.params.id, {
       include: [{ model: Product }],
     });
 
-    if (!productData) {
-      res.status(404).json({ message: 'No product found with that id!' });
+    if (!categoryData) {
+      res.status(404).json({ message: 'No category found with that id!' });
       return;
     }
 
-    res.status(200).json(productData);
+    res.status(200).json(categoryData);
   } catch (err) {
     res.status(500).json(err);
   }
 });
 
+  // Creates new category
 router.post('/', async (req, res) => {
   try {
-    // Since the model will create a unique UUID value by default, we just need to provide the `id` of the Reader that will own this card
     const categoryData = await Category.create({
-      reader_id: req.body.reader_id,
+      category_id: req.body.category_id,
     });
     res.status(200).json(categoryData);
   } catch (err) {
     res.status(400).json(err);
   }
-  // create a new category
 });
 
-router.put('/:id', (req, res) => {
-  // update a category by its `id` value
+  // Updates existing category
+router.put('/:id', async (req, res) => {
+  try {
+    const categoryData = await Category.update(req.body, {
+      where: {
+        id: req.params.id,
+      },
+    });
+
+    if (!categoryData[0]) {
+      res.status(404).json({ message: 'No category found with that id!' });
+      return;
+    }
+
+    res.status(200).json(categoryData);
+  } catch (err) {
+    res.status(500).json(err);
+  }
 });
 
-router.delete('/:id', (req, res) => {
-  // delete a category by its `id` value
+  // Deletes existing category
+router.delete('/:id', async (req, res) => {
+  try {
+    const categoryData = await Category.destroy({
+      where: {
+        id: req.params.id,
+      },
+    });
+
+    if (!categoryData) {
+      res.status(404).json({ message: 'No category found with that id!' });
+      return;
+    }
+
+    res.status(200).json(categoryData);
+  } catch (err) {
+    res.status(500).json(err);
+  }
 });
 
 module.exports = router;
